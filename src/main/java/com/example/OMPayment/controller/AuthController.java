@@ -57,15 +57,15 @@ public class AuthController  {
         System.out.println(usernamePasswordAuthenticationToken);
         System.out.println(usernamePasswordAuthenticationToken.isAuthenticated());
         System.out.println("bbbbbbbbbbbbbbbbbbb");
-        Authentication authentication = authenticationManagerSelf.authenticate(usernamePasswordAuthenticationToken);
+        Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
         System.out.println(authentication);
         System.out.println(authentication.isAuthenticated());
         System.out.println("cccccccccccccccccccccccccc");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         System.out.println("ddddddddddddddddd");
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        String jwt = jwtUtils.generateJwtToken(name);
+        //String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        String jwt = jwtUtils.generateJwtToken(authentication);
         System.out.println(jwt);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

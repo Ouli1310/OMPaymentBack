@@ -11,6 +11,7 @@ public interface UserService {
     List<User> getAllUsers();
     User getUserById(Long id);
     List<User> getUserByProfil(Long id);
+    User getUserByEmail(String email);
     void createUser(SignupRequest signupRequest);
     User updateUser(Long id, UserDTO userDto);
     void deleteUser(Long id);

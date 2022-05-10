@@ -16,13 +16,13 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     private String jwtSecret = "OMPaymentSecretKey";
     private int jwtExpirarionMs = 86400000;
-    public String generateJwtToken(Authentication authentication) {
-        System.out.println("authentication"+authentication.getPrincipal());
-        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+    public String generateJwtToken(String name) {
+        System.out.println("Name"+name);
+        //UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         //String name = userPrincipal.getUsername();
         //System.out.println(name);
         return Jwts.builder()
-                .setSubject(userPrincipal.getUsername())
+                .setSubject(name)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirarionMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

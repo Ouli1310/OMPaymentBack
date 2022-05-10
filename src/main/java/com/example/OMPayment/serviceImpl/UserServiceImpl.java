@@ -34,6 +34,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
     public void createUser(SignupRequest signupRequest) {
        /** User newUser = new User();
         newUser.setFirstName(signupRequest.getFirstName());

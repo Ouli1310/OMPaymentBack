@@ -11,15 +11,18 @@ import com.example.OMPayment.security.jwt.JwtUtils;
 import com.example.OMPayment.security.services.AuthenticationManagerSelf;
 import com.example.OMPayment.security.services.SecurityContextSelf;
 import com.example.OMPayment.security.services.UserDetailsImpl;
+import com.example.OMPayment.security.services.UserDetailsServiceImpl;
 import com.example.OMPayment.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,8 @@ import javax.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthController  {
 
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     private final UserRepository userRepository;
 
@@ -46,31 +50,42 @@ public class AuthController  {
 
     private final AuthenticationManagerSelf authenticationManagerSelf;
 
+    private final UserDetailsServiceImpl userDetailsService;
+
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) throws Exception {
         System.out.println(loginRequest);
         System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaa");
         System.out.println(loginRequest.getEmail());
         System.out.println(loginRequest.getPassword());
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
-        System.out.println(usernamePasswordAuthenticationToken);
-        System.out.println(usernamePasswordAuthenticationToken.isAuthenticated());
+        final UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(loginRequest.getEmail());
+        System.out.println(userDetails);
+        User user = userService.getUserByEmail(loginRequest.getEmail());
+        System.out.println(user);
+        //UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
+        //System.out.println(usernamePasswordAuthenticationToken);
+        //System.out.println(usernamePasswordAuthenticationToken.isAuthenticated());
         System.out.println("bbbbbbbbbbbbbbbbbbb");
-        Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        //Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
-        System.out.println(authentication);
-        System.out.println(authentication.isAuthenticated());
-        System.out.println("cccccccccccccccccccccccccc");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println("ddddddddddddddddd");
-        //String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        System.out.println(jwt);
+        try {
+            Authentication authentication = authenticationManagerSelf.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            System.out.println("cccccccccccccccccccccccccc");
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println(authentication.isAuthenticated());
+            System.out.println("ddddddddddddddddd");
+            String name = SecurityContextHolder.getContext().getAuthentication().getName();
+            String jwt = jwtUtils.generateJwtToken(name);
+            System.out.println(jwt);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        new JwtResponse(jwt, userDetails.getId(), userDetails.getPassword());
-        return ResponseEntity.ok("login successful");
+            //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            System.out.println("login successful");
+            return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new Exception("Incorrect user or password", e);
+        }
+
     }
 
     @PostMapping("/signup")

@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,6 +54,8 @@ public class AuthController  {
 
     private final UserDetailsServiceImpl userDetailsService;
 
+    private JavaMailSender mailSender;
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) throws Exception {
@@ -69,29 +73,34 @@ public class AuthController  {
         System.out.println("bbbbbbbbbbbbbbbbbbb");
         //Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
-        try {
-            Authentication authentication = authenticationManagerSelf.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-            System.out.println("cccccccccccccccccccccccccc");
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(authentication.isAuthenticated());
-            System.out.println("ddddddddddddddddd");
-            String name = SecurityContextHolder.getContext().getAuthentication().getName();
-            String jwt = jwtUtils.generateJwtToken(name);
-            System.out.println(jwt);
+        if(userDetailsService.doPasswordsMatch(loginRequest.getPassword(), user.getPassword())) {
+            try {
+                Authentication authentication = authenticationManagerSelf.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                System.out.println("cccccccccccccccccccccccccc");
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println(authentication.isAuthenticated());
+                System.out.println("ddddddddddddddddd");
+                String name = SecurityContextHolder.getContext().getAuthentication().getName();
+                String jwt = jwtUtils.generateJwtToken(name);
+                System.out.println(jwt);
 
-            //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            System.out.println("login successful");
-            return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getPassword()));
-        } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect user or password", e);
+                //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                System.out.println("login successful");
+                return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getPassword()));
+            } catch (BadCredentialsException e) {
+                throw new Exception("Incorrect user or password", e);
+            }
         }
+        return ResponseEntity.ok("Incorrect password");
 
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        System.out.println(signupRequest);
         System.out.println(signupRequest.getEmail());
+        System.out.println(signupRequest.getPassword());
         System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
             System.out.println("Error: Email is already taken!");
@@ -120,6 +129,12 @@ public class AuthController  {
         System.out.println(newUser);
         userRepository.save(newUser);
         System.out.println("User registered successfully!");
-        return ResponseEntity.ok("User registered successfully!");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(newUser.getEmail());
+        message.setSubject("Registration on the OM Payment Platform");
+        message.setText("Your registration was successful");
+        this.mailSender.send(message);
+        return ResponseEntity.ok(newUser);
+
     }
 }

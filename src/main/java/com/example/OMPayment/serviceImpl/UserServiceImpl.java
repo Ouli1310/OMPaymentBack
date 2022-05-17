@@ -54,9 +54,9 @@ public class UserServiceImpl implements UserService {
 
 
     }
-
     @Override
     public User updateUser(Long id, UserDTO userDto) {
+        /**
         User currentUser = userRepository.findById(id).orElse(null);
         currentUser.setFirstName(userDto.getFirstName());
         currentUser.setLastName(userDto.getLastName());
@@ -65,7 +65,8 @@ public class UserServiceImpl implements UserService {
         currentUser.setProfil(userDto.getProfil());
         User updatedUser = userRepository.save(currentUser);
 
-        return updatedUser;
+        return updatedUser;*/
+        return null;
     }
 
     @Override

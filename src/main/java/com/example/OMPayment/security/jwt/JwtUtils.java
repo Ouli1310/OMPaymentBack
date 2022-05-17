@@ -1,10 +1,11 @@
 package com.example.OMPayment.security.jwt;
 
-import com.example.OMPayment.security.services.UserDetailsImpl;
+import ch.qos.logback.core.boolex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.converter.json.GsonBuilderUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
 
@@ -16,6 +17,8 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     private String jwtSecret = "OMPaymentSecretKey";
     private int jwtExpirarionMs = 86400000;
+
+
     public String generateJwtToken(String name) {
         System.out.println("Name"+name);
         //UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();

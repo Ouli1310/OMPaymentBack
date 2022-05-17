@@ -11,7 +11,7 @@ public class SignupRequest {
     private String firstName;
     private String lastName;
     private String email;
-    private String msisdn;
+    private Long msisdn;
     private Long profil;
     private String password;
 

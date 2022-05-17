@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -28,6 +29,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return UserDetailsImpl.build(user);
     }
+
+    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public String bcryptEncryptor(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+    public Boolean doPasswordsMatch(String rawPassword,String encodedPassword) {
+
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+
+    }
+
 
 
 }

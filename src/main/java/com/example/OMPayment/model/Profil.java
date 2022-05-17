@@ -18,6 +18,8 @@ public class Profil implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profilId")
     private Long id;
+    @Column(name = "profilCode")
+    private String code;
     @Column(name = "profilName")
     private String name;
     //@OneToMany(mappedBy = "profil")

@@ -34,7 +34,7 @@ public class User implements Serializable {
     @Column(name = "userEmail")
     private String email;
     @Column(name = "userMsisdn")
-    private String msisdn;
+    private Long msisdn;
     @Column(name = "userPassword")
     private String password;
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")

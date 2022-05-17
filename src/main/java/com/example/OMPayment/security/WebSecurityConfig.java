@@ -2,6 +2,7 @@ package com.example.OMPayment.security;
 
 import com.example.OMPayment.security.jwt.AuthEntryPointJwt;
 import com.example.OMPayment.security.jwt.AuthTokenFilter;
+import com.example.OMPayment.security.services.AuthenticationManagerSelf;
 import com.example.OMPayment.security.services.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,15 +34,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AuthTokenFilter(unauthorizedHandler);
     }
 
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
+
+
     @Bean
     @Override
     protected AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    protected AuthenticationManagerSelf authenticationManagerSelf() throws Exception {
+        return (AuthenticationManagerSelf) super.authenticationManagerBean();
     }
 
     @Bean
@@ -63,6 +71,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()
+                .antMatchers("/api/profil/**").permitAll()
                 .anyRequest().authenticated();
         http.addFilterBefore(authentificationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }

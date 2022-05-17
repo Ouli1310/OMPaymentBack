@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/profil/")
+@RequestMapping("api/profil")
 @CrossOrigin(origins = "*", maxAge = 3600, allowedHeaders = "*")
 @AllArgsConstructor
 public class ProfilController {
@@ -20,12 +20,12 @@ public class ProfilController {
         return profilService.getAllProfil();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Profil getProfilById(@PathVariable("id") Long id) {
         return profilService.getProfilById(id);
     }
 
-    @GetMapping("name/{id}")
+    @GetMapping("/name/{id}")
     public String getNameById(@PathVariable("id") Long id) {
         return profilService.getProfilNameById(id);
     }

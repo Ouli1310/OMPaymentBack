@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -28,6 +29,16 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public String getProfilNameById(Long id) {
-        return profilRepository.findNameById(id);
+       Profil profil = profilRepository.findById(id).orElse(null);
+
+        return profil.getName();
     }
+
+    @Override
+    public String getProfilCodeById(Long id) {
+        Profil profil = profilRepository.findById(id).orElse(null);
+
+        return profil.getCode();
+    }
+
 }

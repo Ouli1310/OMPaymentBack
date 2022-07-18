@@ -13,8 +13,5 @@ public class BalanceServiceImpl implements BalanceService {
 
     private final BalanceRepository balanceRepository;
 
-    @Override
-    public Balance getBallanceByUserId(Long id) {
-        return balanceRepository.findBalanceByUser_Id(id);
-    }
+
 }

@@ -11,4 +11,5 @@ public interface ProfilService {
     Profil getProfilById(Long id);
 
     String getProfilNameById(Long id);
+    String getProfilCodeById(Long id);
 }

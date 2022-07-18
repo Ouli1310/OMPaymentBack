@@ -29,4 +29,10 @@ public class ProfilController {
     public String getNameById(@PathVariable("id") Long id) {
         return profilService.getProfilNameById(id);
     }
+
+    @GetMapping("/code/{id}")
+    public String getCodeById(@PathVariable("id") Long id) {
+        return profilService.getProfilCodeById(id);
+    }
+
 }

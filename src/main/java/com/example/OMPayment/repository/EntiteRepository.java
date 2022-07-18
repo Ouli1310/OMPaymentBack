@@ -1,11 +1,10 @@
 package com.example.OMPayment.repository;
 
-import com.example.OMPayment.model.Profil;
+import com.example.OMPayment.model.Entite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+
 @Repository
-public interface ProfilRepository extends JpaRepository<Profil, Long> {
-
-
+public interface EntiteRepository extends JpaRepository<Entite, Long> {
 }

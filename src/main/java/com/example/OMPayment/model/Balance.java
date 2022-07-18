@@ -18,7 +18,4 @@ public class Balance implements Serializable {
     private Double value;
     @Column(name = "balance_unit")
     private String unit;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }

@@ -3,6 +3,7 @@ package com.example.OMPayment.serviceImpl;
 import com.example.OMPayment.dto.UserDTO;
 import com.example.OMPayment.model.User;
 import com.example.OMPayment.payload.request.SignupRequest;
+import com.example.OMPayment.repository.PaymentActorRepository;
 import com.example.OMPayment.repository.ProfilRepository;
 import com.example.OMPayment.repository.UserRepository;
 import com.example.OMPayment.service.UserService;
@@ -17,6 +18,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ProfilRepository profilRepository;
+    private final PaymentActorRepository paymentActorRepository;
 
     @Override
     public List<User> getAllUsers() {
@@ -72,6 +74,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public Boolean passwordExist(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user.getPassword().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public User getUserByMsisdn(String msisdn) {
+        return userRepository.findByMsisdn(msisdn);
+    }
+
+    @Override
+    public Long getUserPinCode(String msisdn) {
+        return paymentActorRepository.findByMsisdn(msisdn).getPinCode();
     }
 
 

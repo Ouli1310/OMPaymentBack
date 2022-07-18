@@ -3,6 +3,7 @@ package com.example.OMPayment.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
+@XmlRootElement
 public class Profil implements Serializable {
 
     @Id

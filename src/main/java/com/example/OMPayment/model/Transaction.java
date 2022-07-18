@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @Entity
@@ -12,16 +13,26 @@ public class Transaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction_id")
+    @Column(name = "id")
     private Long id;
-    @Column(name = "request_id")
-    private Long requestId;
+    @Column(name = "transaction_id", columnDefinition = "TEXT")
+    private String transactionId;
+    @Column(name = "request_id", columnDefinition = "TEXT")
+    private String requestId;
+    @Column(name = "reference", columnDefinition = "TEXT")
+    private String reference;
     @Column(name = "transaction_status")
-    private Status status;
+    private String status;
     @Column(name = "transaction_description")
     private String description;
     @Column(name = "transaction_customerId")
-    private Long customerId;
+    private String customerId;
     @Column(name = "transaction_partnerId")
-    private Long partnerId;
+    private String partnerId;
+    @Column(name = "transaction_value")
+    private Float value;
+    @Column(name = "transaction_date")
+    private Date date;
+    @Column(name = "transaction_entite")
+    private String entite;
 }

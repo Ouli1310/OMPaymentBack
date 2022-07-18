@@ -34,16 +34,25 @@ public class User implements Serializable {
     @Column(name = "userEmail")
     private String email;
     @Column(name = "userMsisdn")
-    private Long msisdn;
+    private String msisdn;
+    @Column(name = "userCode")
+    private String code;
     @Column(name = "userPassword")
     private String password;
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
-    private Balance balance;
+    @Column(name = "userTokenOM", columnDefinition = "TEXT")
+    private String tokenOM;
+    @Column(name = "userResetPasswordToken", columnDefinition = "TEXT")
+    private String requestPasswordToken;
+    @Column(name = "userPublicKey")
+    private String publicKey;
     @Column(name = "userProfil")
     private Long profil;
+    @Column(name = "userEntite")
+    private Long entite;
+    @OneToOne
+    private Balance balance;
     @OneToMany
     private Set<Transaction> userTransactions = new HashSet<>();
 
-    public User(String firstName, String lastName, String email, String msisdn, String encode, Long profil) {
-    }
+
 }

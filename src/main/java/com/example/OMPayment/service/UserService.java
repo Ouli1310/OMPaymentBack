@@ -15,4 +15,8 @@ public interface UserService {
     void createUser(SignupRequest signupRequest);
     User updateUser(Long id, UserDTO userDto);
     void deleteUser(Long id);
+    Boolean passwordExist(String email);
+    User getUserByMsisdn(String msisdn);
+    Long getUserPinCode(String msisdn);
+
 }

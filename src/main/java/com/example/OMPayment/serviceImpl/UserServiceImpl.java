@@ -9,6 +9,7 @@ import com.example.OMPayment.repository.UserRepository;
 import com.example.OMPayment.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -41,6 +42,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByFirstName(String name) {
+        return userRepository.findByFirstName(name);
+    }
+
+    @Override
     public void createUser(SignupRequest signupRequest) {
        /** User newUser = new User();
         newUser.setFirstName(signupRequest.getFirstName());
@@ -57,18 +63,18 @@ public class UserServiceImpl implements UserService {
 
     }
     @Override
-    public User updateUser(Long id, UserDTO userDto) {
-        /**
+    public User updateUser(Long id, SignupRequest user) {
+
         User currentUser = userRepository.findById(id).orElse(null);
-        currentUser.setFirstName(userDto.getFirstName());
-        currentUser.setLastName(userDto.getLastName());
-        currentUser.setEmail(userDto.getEmail());
-        currentUser.setMsisdn(userDto.getMsisdn());
-        currentUser.setProfil(userDto.getProfil());
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setEmail(user.getEmail());
+        currentUser.setMsisdn(user.getMsisdn());
+        currentUser.setProfil(user.getProfil());
+        currentUser.setEntite(user.getEntite());
         User updatedUser = userRepository.save(currentUser);
 
-        return updatedUser;*/
-        return null;
+        return updatedUser;
     }
 
     @Override
@@ -86,13 +92,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByMsisdn(String msisdn) {
+    public List<User> getUserByMsisdn(String msisdn) {
         return userRepository.findByMsisdn(msisdn);
     }
 
     @Override
     public Long getUserPinCode(String msisdn) {
         return paymentActorRepository.findByMsisdn(msisdn).getPinCode();
+    }
+
+    @Override
+    public List<User> getUserByEntite(Long entite) {
+        return userRepository.findByEntite(entite);
+    }
+
+    @Override
+    public User getUserByEmailAndMsisdn(String email, String msisdn) {
+        return userRepository.findByEmailAndMsisdn(email, msisdn);
     }
 
 

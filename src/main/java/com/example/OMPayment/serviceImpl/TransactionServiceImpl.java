@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.OMPayment.encryption.RSAUtils.getPublicKey;
@@ -116,7 +118,54 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> listTransactionsParAgence(String entite) {
+    public List<Transaction> listTransactionsParAgence(Long entite) {
         return transactionRepository.findByEntite(entite);
+    }
+
+    @Override
+    public List<Transaction> listTransactionsParMethode(String methode) {
+        return transactionRepository.findByMethodeNot(methode);
+    }
+
+    @Override
+    public List<Transaction> listTransactionsCashIn(String methode) {
+        return transactionRepository.findByMethode(methode);
+    }
+
+    @Override
+    public List<Transaction> listTransactionsParAgent(String emailAgent) {
+
+       return transactionRepository.findByAgent(emailAgent);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParAgenceEtStatus(Long entite, String status) {
+        return transactionRepository.findByEntiteAndStatus(entite, status);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParAgentEtStatus(String email, String status) {
+
+        return transactionRepository.findByAgentAndStatus(email, status);
+    }
+
+    @Override
+    public Transaction transactionByDate(Date date) {
+        return transactionRepository.findByDate(date);
+    }
+
+    @Override
+    public List<Transaction> transactionByDay(String day) {
+        return transactionRepository.findByDay(day);
+    }
+
+    @Override
+    public List<Transaction> transactionBetweenDate1AnDate2(String date1, String date2) {
+        return transactionRepository.findByDayGreaterThanEqualAndDayLessThanEqual(date1, date2);
+    }
+
+    @Override
+    public List<Transaction> transactionsByEntiteAndBetweenDates(Long entite, String date1, String date2) {
+        return transactionRepository.findByEntiteAndDayGreaterThanEqualAndDayLessThanEqual(entite, date1, date2);
     }
 }

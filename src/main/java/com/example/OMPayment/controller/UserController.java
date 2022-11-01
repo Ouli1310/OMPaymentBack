@@ -4,11 +4,14 @@ package com.example.OMPayment.controller;
 import com.example.OMPayment.model.IdType;
 import com.example.OMPayment.model.Profil;
 import com.example.OMPayment.model.User;
+import com.example.OMPayment.payload.request.SignupRequest;
 import com.example.OMPayment.service.IdTypeService;
 import com.example.OMPayment.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -30,6 +33,12 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @GetMapping("firstName/{firstName}")
+    public User getUserByFirstName(@PathVariable("firstName") String firstName) {
+        return userService.getUserByFirstName(firstName);
+    }
+
+
     @GetMapping("profil/{profilId}")
     public List<User> getUserByProfilId(@PathVariable("profilId") Long id) {
         return userService.getUserByProfil(id);
@@ -43,6 +52,21 @@ public class UserController {
 
     @GetMapping("{id}/{idType}")
     public String getIdByIdType(@PathVariable("id") Long id, @PathVariable("idType") Long idType) {
-        return idTypeService.getIdByType(id, idType);
+        return idTypeService.getIdByType(id,  idType);
+    }
+
+    @GetMapping("entite/{entite}")
+    public List<User> getUserByEntite(@PathVariable("entite") Long entite) {
+        return userService.getUserByEntite(entite);
+    }
+
+    @PutMapping("updateUser/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @Valid @RequestBody SignupRequest signupRequest) {
+        return ResponseEntity.ok(userService.updateUser(id, signupRequest));
+    }
+
+    @DeleteMapping("deleteUser/{id}")
+    public void deleteUser(@PathVariable("id") Long id) {
+         userService.deleteUser(id);
     }
 }

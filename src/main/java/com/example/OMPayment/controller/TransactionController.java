@@ -9,9 +9,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.jdi.event.StepEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.repository.query.Param;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +27,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -71,9 +75,29 @@ public class TransactionController<LOGGER> {
         return transactionService.listTransactionsByPartnerId(partnerId);
     }
 
+    @GetMapping("/agent/{email}")
+    public List<Transaction> getTransactonByAgent(@PathVariable("email") String email) {
+        return transactionService.listTransactionsParAgent(email);
+    }
+
+    @GetMapping("/agent/{email}/{status}")
+    public List<Transaction> getTransactonByAgentAndStatus(@PathVariable("email") String email, @PathVariable("status") String status) {
+        return transactionService.listTransactionParAgentEtStatus(email, status);
+    }
+
     @GetMapping("/partner/{partnerId}/{status}")
     public List<Transaction> getTransactonByPartnerIdAndStatus(@PathVariable("partnerId") String partnerId, @PathVariable("status") String status) {
         return transactionService.lstTransactionByPartnerIdAndStatus(partnerId, status);
+    }
+
+    @GetMapping("/entite/{entite}")
+    public List<Transaction> getAllTransactionByEntite(@PathVariable("entite") Long entite) {
+        return transactionService.listTransactionsParAgence(entite);
+    }
+
+    @GetMapping("/entite/{entite}/{status}")
+    public List<Transaction> getAllTransactionByEntiteAndStatus(@PathVariable("entite") Long entite, @PathVariable("status") String status) {
+        return transactionService.listTransactionParAgenceEtStatus(entite, status);
     }
 
     @GetMapping("/method")
@@ -86,6 +110,36 @@ public class TransactionController<LOGGER> {
     public List<IdType> getAllIdTypes() {
 
         return idTypeService.getListIdType();
+    }
+
+    @GetMapping("/method/{methode}")
+    public List<Transaction> getTransactionByMethod(@PathVariable("methode") String methode) {
+
+        return transactionService.listTransactionsParMethode(methode);
+    }
+
+    @GetMapping("/day/{day}")
+    public List<Transaction> getTransactionDay(@PathVariable("day") String day) {
+        return transactionService.transactionByDay(day);
+    }
+
+    @GetMapping("/date/{date}")
+    public Transaction getTransactionDate(@PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date date) {
+        return transactionService.transactionByDate(date);
+    }
+
+   // public List<Transaction> getTransactionBetween2Dates(@PathVariable("date1") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date1, @PathVariable("date2") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date2) {
+
+        @GetMapping("/dates/{date1}/{date2}")
+    public List<Transaction> getTransactionBetween2Dates(@PathVariable("date1") String date1, @PathVariable("date2") String date2) {
+
+        return transactionService.transactionBetweenDate1AnDate2(date1, date2);
+    }
+
+    @GetMapping("entite/{entite}/dates/{date1}/{date2}")
+    public List<Transaction> getTransactionByEntiteAndBetween2Dates(@PathVariable("entite") Long entite, @PathVariable("date1") String date1, @PathVariable("date2") String date2) {
+
+        return transactionService.transactionsByEntiteAndBetweenDates(entite, date1, date2);
     }
 
     @RequestMapping(value = "/newToken/{id}", method = RequestMethod.POST)
@@ -204,14 +258,18 @@ public class TransactionController<LOGGER> {
         String status = node.path("status").asText();
         Transaction newTransaction = new Transaction();
         newTransaction.setTransactionId(transactionId);
+        newTransaction.setMethode(transactionRequest.getMethod());
         newTransaction.setRequestId(requestId);
         newTransaction.setDescription(description);
         newTransaction.setStatus(status);
         newTransaction.setCustomerId(transactionRequest.getCustomer().getId());
         newTransaction.setPartnerId(transactionRequest.getPartner().getId());
+        newTransaction.setAgent(user.getEmail());
         newTransaction.setValue(transactionRequest.getAmount().getValue());
         newTransaction.setReference(transactionRequest.getReference());
+        newTransaction.setEntite(userService.getUserByEmailAndMsisdn(user.getEmail(), transactionRequest.getPartner().getId()).getEntite());
         newTransaction.setDate(new Date());
+        newTransaction.setDay(LocalDate.parse( new SimpleDateFormat("yyyy-MM-dd").format(newTransaction.getDate()) ).toString());
         log.debug("Date"+newTransaction.getDate());
         transactionRepository.save(newTransaction);
         return result;
@@ -371,6 +429,7 @@ return result;
         log.debug("user"+user);
         return result;
     }
+
 
 
 

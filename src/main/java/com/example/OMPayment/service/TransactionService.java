@@ -11,7 +11,10 @@ import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 
 public interface TransactionService {
 
@@ -23,5 +26,14 @@ public interface TransactionService {
     Transaction getTransactionByTransactionId(String id);
     List<Transaction> listTransactionsByPartnerId(String partnerId);
     List<Transaction> lstTransactionByPartnerIdAndStatus(String partnerId, String status);
-    List<Transaction> listTransactionsParAgence(String entite);
+    List<Transaction> listTransactionsParAgence(Long entite);
+    List<Transaction> listTransactionsParMethode(String methode);
+    List<Transaction> listTransactionsCashIn(String methode);
+    List<Transaction> listTransactionsParAgent(String emailAgent);
+    List<Transaction> listTransactionParAgenceEtStatus(Long entite, String status);
+    List<Transaction> listTransactionParAgentEtStatus(String email, String status);
+    Transaction transactionByDate(Date date);
+    List<Transaction> transactionByDay(String day);
+    List<Transaction> transactionBetweenDate1AnDate2(String date1, String date2);
+    List<Transaction> transactionsByEntiteAndBetweenDates(Long entite, String date1, String date2);
 }

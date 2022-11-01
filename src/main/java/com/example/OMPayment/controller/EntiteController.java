@@ -3,10 +3,7 @@ package com.example.OMPayment.controller;
 import com.example.OMPayment.model.Entite;
 import com.example.OMPayment.service.EntiteService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,6 +18,16 @@ public class EntiteController {
     @GetMapping
     public List<Entite> getAllEntites() {
         return entiteService.getAllEntite();
+    }
+
+    @GetMapping("/{id}")
+    public Entite getEntiteById(@PathVariable("id") Long id) {
+        return entiteService.getEntiteById(id);
+    }
+
+    @GetMapping("/name/{name}")
+    public Entite getEntiteByName(@PathVariable("name") String name) {
+        return entiteService.getEntiteByName(name);
     }
 
 }

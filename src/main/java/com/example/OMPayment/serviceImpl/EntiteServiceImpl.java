@@ -17,4 +17,14 @@ public class EntiteServiceImpl implements EntiteService {
     public List<Entite> getAllEntite() {
         return entiteRepository.findAll();
     }
+
+    @Override
+    public Entite getEntiteById(Long id) {
+        return entiteRepository.findById(id).get();
+    }
+
+    @Override
+    public Entite getEntiteByName(String name) {
+        return entiteRepository.findByName(name);
+    }
 }

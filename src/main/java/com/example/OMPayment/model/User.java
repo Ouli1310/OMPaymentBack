@@ -49,10 +49,10 @@ public class User implements Serializable {
     private Long profil;
     @Column(name = "userEntite")
     private Long entite;
+    @Column(name = "userStatus")
+    private Boolean status;
     @OneToOne
     private Balance balance;
-    @OneToMany
-    private Set<Transaction> userTransactions = new HashSet<>();
 
 
 }

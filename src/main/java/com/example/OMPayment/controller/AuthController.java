@@ -135,13 +135,13 @@ public class AuthController  {
         newUser.setLastName(signupRequest.getLastName());
         newUser.setEmail(signupRequest.getEmail());
         newUser.setProfil(signupRequest.getProfil());
-        if (profilService.getProfilCodeById(newUser.getProfil()) != "DAF") {
-            newUser.setMsisdn(signupRequest.getMsisdn());
-            newUser.setCode(signupRequest.getCode());
-            //newUser.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
-            newUser.setEntite(signupRequest.getEntite());
-        }
+        newUser.setMsisdn(signupRequest.getMsisdn());
+        newUser.setCode(signupRequest.getCode());
+        //newUser.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+
+        newUser.setEntite(signupRequest.getEntite());
+        newUser.setStatus(true);
 
         /**User newUser = new User(signupRequest.getFirstName(),
                                 signupRequest.getLastName(),

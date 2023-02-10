@@ -3,6 +3,7 @@ package com.example.OMPayment.controller;
 import com.example.OMPayment.model.Profil;
 import com.example.OMPayment.service.ProfilService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,23 +17,23 @@ public class ProfilController {
     private final ProfilService profilService;
 
     @GetMapping
-    public List<Profil> getAllProfils() {
-        return profilService.getAllProfil();
+    public ResponseEntity<?> getAllProfils() {
+        return ResponseEntity.ok(profilService.getAllProfil());
     }
 
     @GetMapping("/{id}")
-    public Profil getProfilById(@PathVariable("id") Long id) {
-        return profilService.getProfilById(id);
+    public ResponseEntity<?> getProfilById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(profilService.getProfilById(id));
     }
 
     @GetMapping("/name/{id}")
-    public String getNameById(@PathVariable("id") Long id) {
-        return profilService.getProfilNameById(id);
+    public ResponseEntity<?> getNameById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(profilService.getProfilNameById(id));
     }
 
     @GetMapping("/code/{id}")
-    public String getCodeById(@PathVariable("id") Long id) {
-        return profilService.getProfilCodeById(id);
+    public ResponseEntity<?> getCodeById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(profilService.getProfilCodeById(id));
     }
 
 }

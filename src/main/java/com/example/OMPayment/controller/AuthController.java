@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -42,6 +44,7 @@ import java.util.UUID;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthController  {
 
     @Autowired
@@ -83,7 +86,6 @@ public class AuthController  {
         //Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
         System.out.println(userService.passwordExist(loginRequest.getEmail()));
-        System.out.println(userService.passwordExist(loginRequest.getEmail()));
         /*if(userService.passwordExist(loginRequest.getEmail()) == false) {
             user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
             userRepository.save(user);
@@ -93,24 +95,31 @@ public class AuthController  {
         }*/
         if(userDetailsService.doPasswordsMatch(loginRequest.getPassword(), user.getPassword())) {
             try {
-                Authentication authentication = authenticationManagerSelf.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-                System.out.println("cccccccccccccccccccccccccc");
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                System.out.println(authentication.isAuthenticated());
-                System.out.println("ddddddddddddddddd");
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                String name = SecurityContextHolder.getContext().getAuthentication().getName();
-                String jwt = jwtUtils.generateJwtToken(name);
-                System.out.println(jwt);
+                if(user.getStatus() == true) {
+                    Authentication authentication = authenticationManagerSelf.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                    System.out.println("cccccccccccccccccccccccccc");
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println(authentication.isAuthenticated());
+                    System.out.println("ddddddddddddddddd");
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    String name = SecurityContextHolder.getContext().getAuthentication().getName();
+                    String jwt = jwtUtils.generateJwtToken(name);
+                    System.out.println(jwt);
 
-                //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-                System.out.println("login successful");
-                return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getEmail(), user.getProfil()));
-            } catch (BadCredentialsException e) {
-                throw new Exception("Incorrect user or password", e);
+                    //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                    System.out.println("login successful");
+                    return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getEmail(), user.getProfil()));
+                } else {
+                    return ResponseEntity.ok("Votre compte est bloqué. Veuillez notifier à l'admin.");
+
+                }
+                }catch (NullPointerException e) {
+                log.debug("error message"+e.getMessage());
+                //throw new Exception("Incorrect user or password", e);
             }
+
         }
-        return ResponseEntity.ok("Incorrect password");
+        return ResponseEntity.ok("yes");
 
     }
 

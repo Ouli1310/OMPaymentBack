@@ -8,6 +8,7 @@ import com.example.OMPayment.payload.request.SignupRequest;
 import com.example.OMPayment.service.IdTypeService;
 import com.example.OMPayment.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,45 +25,59 @@ public class UserController {
     private final IdTypeService idTypeService;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("{id}")
-    public User getUserById(@PathVariable("id") Long id) {
-        return userService.getUserById(id);
+    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("firstName/{firstName}")
-    public User getUserByFirstName(@PathVariable("firstName") String firstName) {
-        return userService.getUserByFirstName(firstName);
+    public ResponseEntity<?> getUserByFirstName(@PathVariable("firstName") String firstName) {
+        return ResponseEntity.ok(userService.getUserByFirstName(firstName));
     }
 
+    @GetMapping("email/{email}")
+    public ResponseEntity<?> getUserByEmail(@PathVariable("email") String email) {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
 
     @GetMapping("profil/{profilId}")
-    public List<User> getUserByProfilId(@PathVariable("profilId") Long id) {
-        return userService.getUserByProfil(id);
+    public ResponseEntity<?> getUserByProfilId(@PathVariable("profilId") Long id) {
+        return ResponseEntity.ok(userService.getUserByProfil(id));
     }
 
     @GetMapping("pinCode/{id}")
-    public Long getUserPinCode(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getUserPinCode(@PathVariable("id") Long id) {
         User user = userService.getUserById(id);
-        return userService.getUserPinCode(user.getMsisdn());
+        return ResponseEntity.ok(userService.getUserPinCode(user.getMsisdn()));
     }
 
     @GetMapping("{id}/{idType}")
-    public String getIdByIdType(@PathVariable("id") Long id, @PathVariable("idType") Long idType) {
-        return idTypeService.getIdByType(id,  idType);
+    public ResponseEntity<?> getIdByIdType(@PathVariable("id") Long id, @PathVariable("idType") Long idType) {
+        return ResponseEntity.ok(idTypeService.getIdByType(id,  idType));
     }
 
     @GetMapping("entite/{entite}")
-    public List<User> getUserByEntite(@PathVariable("entite") Long entite) {
-        return userService.getUserByEntite(entite);
+    public ResponseEntity<?> getUserByEntite(@PathVariable("entite") Long entite) {
+        return ResponseEntity.ok(userService.getUserByEntite(entite));
     }
 
     @PutMapping("updateUser/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @Valid @RequestBody SignupRequest signupRequest) {
         return ResponseEntity.ok(userService.updateUser(id, signupRequest));
+    }
+
+    @PostMapping("blockUser/{email}")
+    public void blockUser(@PathVariable("email") String email) {
+         userService.blockUser(email);
+    }
+
+    @PostMapping("unblockUser/{email}")
+    public void unblockUser(@PathVariable("email") String email) {
+        userService.unblockUser(email);
     }
 
     @DeleteMapping("deleteUser/{id}")

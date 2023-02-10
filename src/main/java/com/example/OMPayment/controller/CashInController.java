@@ -7,6 +7,7 @@ import com.example.OMPayment.model.Transaction;
 import com.example.OMPayment.model.User;
 import com.example.OMPayment.payload.request.CashInRequest;
 import com.example.OMPayment.repository.CashInActorRepository;
+import com.example.OMPayment.repository.PaymentActorRepository;
 import com.example.OMPayment.repository.TransactionRepository;
 import com.example.OMPayment.service.TransactionService;
 import com.example.OMPayment.service.UserService;
@@ -15,10 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -48,15 +46,17 @@ public class CashInController<LOGGER> {
 
     private final CashInActorRepository cashInActorRepository;
 
+    private final PaymentActorRepository paymentActorRepository;
+
 
     @GetMapping()
-    public List<Transaction> getAllTransactionCashIn() {
+    public ResponseEntity<?> getAllTransactionCashIn() {
 
-        return transactionService.listTransactionsCashIn("CASHIN");
+        return ResponseEntity.ok(transactionService.listTransactionsCashIn("CASHIN"));
     }
 
     @GetMapping("/testNumbers/{id}")
-    public String getTestNumbers(@PathVariable("id") Long id) throws JsonProcessingException {
+    public ResponseEntity<?> getTestNumbers(@PathVariable("id") Long id) throws JsonProcessingException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         System.out.println("tokennnnn"+token);
@@ -68,24 +68,24 @@ public class CashInController<LOGGER> {
         HttpEntity<String> entity1 = new HttpEntity<>(headers1);
 
 
-        CashInActor[] result = restTemplate.exchange(url, HttpMethod.GET, entity1, CashInActor[].class).getBody();
+        PaymentActor[] result = restTemplate.exchange(url, HttpMethod.GET, entity1, PaymentActor[].class).getBody();
 
         System.out.println(result[0]);
 
-        CashInActor cashInActor1 = result[0];
-        CashInActor cashInActor2 = result[1];
+        PaymentActor cashInActor1 = result[0];
+        PaymentActor cashInActor2 = result[1];
 
         System.out.println("PAYMMMMMMMMMMMMMMMMM"+cashInActor1);
         System.out.println("PAYMMMMMMMMMMMMMMMMM"+cashInActor2);
 
-        cashInActorRepository.save(cashInActor1);
-        cashInActorRepository.save(cashInActor2);
+        paymentActorRepository.save(cashInActor1);
+        paymentActorRepository.save(cashInActor2);
 
-        return result.toString();
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping(value = "/initCashIn/{id}")
-    public String cashIn(@PathVariable("id") Long id, @RequestBody CashInRequest cashInRequest) throws JsonProcessingException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+    public ResponseEntity<?> cashIn(@PathVariable("id") Long id, @RequestBody CashInRequest cashInRequest) throws JsonProcessingException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         ObjectMapper mapper = new ObjectMapper();
@@ -133,7 +133,7 @@ public class CashInController<LOGGER> {
         newTransaction.setDay(LocalDate.parse( new SimpleDateFormat("yyyy-MM-dd").format(newTransaction.getDate()) ).toString());
         log.debug("Date"+newTransaction.getDate());
         transactionRepository.save(newTransaction);
-        return result;
+        return ResponseEntity.ok(result);
     }
 
 }

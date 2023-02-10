@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CashInActorRepository extends JpaRepository<CashInActor, Long> {
+
+    PaymentActor findByMsisdn(String msisdn);
 }

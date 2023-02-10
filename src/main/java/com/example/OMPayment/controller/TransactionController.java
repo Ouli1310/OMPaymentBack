@@ -18,6 +18,8 @@ import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
@@ -30,6 +32,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.json.JSONObject;
 
 @RestController
 @RequestMapping("api/transaction")
@@ -57,93 +63,95 @@ public class TransactionController<LOGGER> {
 
     private final BalanceRepository balanceRepository;
 
+    private final ErrorHttpRepository errorHttpRepository;
+
 
     @GetMapping
-    public List<Transaction> getAllTransaction() {
+    public ResponseEntity<?> getAllTransaction() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         System.out.println(auth);
-        return transactionService.listTransactions();
+        return ResponseEntity.ok(transactionService.listTransactions());
     }
 
     @GetMapping("/{status}")
-    public List<Transaction> getAllTransactionByStatus(@PathVariable("status") String status) {
-        return transactionService.listTransactionParStatus(status);
+    public ResponseEntity<?> getAllTransactionByStatus(@PathVariable("status") String status) {
+        return ResponseEntity.ok(transactionService.listTransactionParStatus(status));
     }
 
     @GetMapping("/partner/{partnerId}")
-    public List<Transaction> getTransactonByPartnerId(@PathVariable("partnerId") String partnerId) {
-        return transactionService.listTransactionsByPartnerId(partnerId);
+    public ResponseEntity<?> getTransactonByPartnerId(@PathVariable("partnerId") String partnerId) {
+        return ResponseEntity.ok(transactionService.listTransactionsByPartnerId(partnerId));
     }
 
     @GetMapping("/agent/{email}")
-    public List<Transaction> getTransactonByAgent(@PathVariable("email") String email) {
-        return transactionService.listTransactionsParAgent(email);
+    public ResponseEntity<?> getTransactonByAgent(@PathVariable("email") String email) {
+        return ResponseEntity.ok(transactionService.listTransactionsParAgent(email));
     }
 
     @GetMapping("/agent/{email}/{status}")
-    public List<Transaction> getTransactonByAgentAndStatus(@PathVariable("email") String email, @PathVariable("status") String status) {
-        return transactionService.listTransactionParAgentEtStatus(email, status);
+    public ResponseEntity<?> getTransactonByAgentAndStatus(@PathVariable("email") String email, @PathVariable("status") String status) {
+        return ResponseEntity.ok(transactionService.listTransactionParAgentEtStatus(email, status));
     }
 
     @GetMapping("/partner/{partnerId}/{status}")
-    public List<Transaction> getTransactonByPartnerIdAndStatus(@PathVariable("partnerId") String partnerId, @PathVariable("status") String status) {
-        return transactionService.lstTransactionByPartnerIdAndStatus(partnerId, status);
+    public ResponseEntity<?> getTransactonByPartnerIdAndStatus(@PathVariable("partnerId") String partnerId, @PathVariable("status") String status) {
+        return ResponseEntity.ok(transactionService.lstTransactionByPartnerIdAndStatus(partnerId, status));
     }
 
     @GetMapping("/entite/{entite}")
-    public List<Transaction> getAllTransactionByEntite(@PathVariable("entite") Long entite) {
-        return transactionService.listTransactionsParAgence(entite);
+    public ResponseEntity<?> getAllTransactionByEntite(@PathVariable("entite") Long entite) {
+        return ResponseEntity.ok(transactionService.listTransactionsParAgence(entite));
     }
 
     @GetMapping("/entite/{entite}/{status}")
-    public List<Transaction> getAllTransactionByEntiteAndStatus(@PathVariable("entite") Long entite, @PathVariable("status") String status) {
-        return transactionService.listTransactionParAgenceEtStatus(entite, status);
+    public ResponseEntity<?> getAllTransactionByEntiteAndStatus(@PathVariable("entite") Long entite, @PathVariable("status") String status) {
+        return ResponseEntity.ok(transactionService.listTransactionParAgenceEtStatus(entite, status));
     }
 
     @GetMapping("/method")
-    public List<Method> getAllMethod() {
+    public ResponseEntity<?> getAllMethod() {
 
-        return methodService.getAllMethod();
+        return ResponseEntity.ok(methodService.getAllMethod());
     }
 
     @GetMapping("/idType")
-    public List<IdType> getAllIdTypes() {
+    public ResponseEntity<?> getAllIdTypes() {
 
-        return idTypeService.getListIdType();
+        return ResponseEntity.ok(idTypeService.getListIdType());
     }
 
     @GetMapping("/method/{methode}")
-    public List<Transaction> getTransactionByMethod(@PathVariable("methode") String methode) {
+    public ResponseEntity<?> getTransactionByMethod(@PathVariable("methode") String methode) {
 
-        return transactionService.listTransactionsParMethode(methode);
+        return ResponseEntity.ok(transactionService.listTransactionsParMethode(methode));
     }
 
     @GetMapping("/day/{day}")
-    public List<Transaction> getTransactionDay(@PathVariable("day") String day) {
-        return transactionService.transactionByDay(day);
+    public ResponseEntity<?> getTransactionDay(@PathVariable("day") String day) {
+        return ResponseEntity.ok(transactionService.transactionByDay(day));
     }
 
     @GetMapping("/date/{date}")
-    public Transaction getTransactionDate(@PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date date) {
-        return transactionService.transactionByDate(date);
+    public ResponseEntity<?> getTransactionDate(@PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date date) {
+        return ResponseEntity.ok(transactionService.transactionByDate(date));
     }
 
    // public List<Transaction> getTransactionBetween2Dates(@PathVariable("date1") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date1, @PathVariable("date2") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date2) {
 
         @GetMapping("/dates/{date1}/{date2}")
-    public List<Transaction> getTransactionBetween2Dates(@PathVariable("date1") String date1, @PathVariable("date2") String date2) {
+    public ResponseEntity<?> getTransactionBetween2Dates(@PathVariable("date1") String date1, @PathVariable("date2") String date2) {
 
-        return transactionService.transactionBetweenDate1AnDate2(date1, date2);
+        return ResponseEntity.ok(transactionService.transactionBetweenDate1AnDate2(date1, date2));
     }
 
     @GetMapping("entite/{entite}/dates/{date1}/{date2}")
-    public List<Transaction> getTransactionByEntiteAndBetween2Dates(@PathVariable("entite") Long entite, @PathVariable("date1") String date1, @PathVariable("date2") String date2) {
+    public ResponseEntity<?> getTransactionByEntiteAndBetween2Dates(@PathVariable("entite") Long entite, @PathVariable("date1") String date1, @PathVariable("date2") String date2) {
 
-        return transactionService.transactionsByEntiteAndBetweenDates(entite, date1, date2);
+        return ResponseEntity.ok(transactionService.transactionsByEntiteAndBetweenDates(entite, date1, date2));
     }
 
     @RequestMapping(value = "/newToken/{id}", method = RequestMethod.POST)
-    public String createToken(@PathVariable("id") Long id) throws IOException, NoSuchAlgorithmException {
+    public ResponseEntity<?> createToken(@PathVariable("id") Long id) throws IOException, NoSuchAlgorithmException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         //String name = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -159,27 +167,57 @@ public class TransactionController<LOGGER> {
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper mapper = new ObjectMapper();
         restTemplate.getMessageConverters().add(new ObjectToUrlEncodedConverter(mapper));
+try {
+    String result = restTemplate.exchange(
+            "https://api.sandbox.orange-sonatel.com/oauth/token", HttpMethod.POST, entity, String.class).getBody();
+    TokenOM tokenOM = new TokenOM();
 
-        String result = restTemplate.exchange(
-                "https://api.sandbox.orange-sonatel.com/oauth/token", HttpMethod.POST, entity, String.class).getBody();
-        TokenOM tokenOM = new TokenOM();
+    JsonNode node = mapper.readTree(result);
+    String token = node.path("access_token").asText();
+    tokenOM.setToken(token);
+    System.out.println(token);
+    System.out.println(token.length());
+    User user = userService.getUserById(id);
+    user.setTokenOM(token);
+    System.out.println(user);
+    userRepository.save(user);
+    tokenOMRepository.save(tokenOM);
+    return ResponseEntity.ok(token);
+}catch (ResourceAccessException e) {
 
-        JsonNode node = mapper.readTree(result);
-        String token = node.path("access_token").asText();
-        tokenOM.setToken(token);
-        System.out.println(token);
-        System.out.println(token.length());
-        User user = userService.getUserById(id);
-        user.setTokenOM(token);
-        System.out.println(user);
-        userRepository.save(user);
-        tokenOMRepository.save(tokenOM);
-        return token;
+    return ResponseEntity.ok("Ressource non accessible. Vérifiez votre connexion.");
+}catch (HttpClientErrorException e) {
+
+    String message = e.getMessage();
+    log.debug("messageee---------------"+message);
+
+    int startIndex = message.indexOf("{");
+    int endIndex = message.lastIndexOf("}") + 1;
+    String jsonString = message.substring(startIndex, endIndex);
+
+    log.debug("jsonstttrrrsr---------------"+jsonString);
+    String js = jsonString.replaceAll("<EOL>", "");
+    log.debug("jsfddddddddddddddddddddr---------------"+js);
+    JSONObject json = new JSONObject(js);
+    System.out.println("Type: " + json.getString("type"));
+    System.out.println("Title: " + json.getString("title"));
+
+    ErrorHttp errorHttp = new ErrorHttp();
+    errorHttp.setType(json.getString("type"));
+    errorHttp.setTitle(json.getString("title"));
+    errorHttp.setInstance(json.getString("instance"));
+    errorHttp.setStatus(json.getString("status"));
+    errorHttp.setCode(json.getString("code"));
+    errorHttp.setDetail(json.getString("detail"));
+    errorHttpRepository.save(errorHttp);
+    return ResponseEntity.ok(errorHttp.getDetail()); }
+
+
 
     }
 
    @GetMapping("/testNumbers/{id}")
-    public String getTestNumbers(@PathVariable("id") Long id) throws JsonProcessingException {
+    public ResponseEntity<?> getTestNumbers(@PathVariable("id") Long id) throws JsonProcessingException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         System.out.println("tokennnnn"+token);
@@ -204,11 +242,11 @@ public class TransactionController<LOGGER> {
        paymentActorRepository.save(paymentActor1);
        paymentActorRepository.save(paymentActor2);
 
-        return result.toString();
+        return ResponseEntity.ok(result.toString());
     }
 
     @GetMapping("/getPubliKey/{id}")
-    public String getPublicKey(@PathVariable("id") Long id) throws JsonProcessingException {
+    public ResponseEntity<?> getPublicKey(@PathVariable("id") Long id) throws JsonProcessingException {
         User user = userService.getUserById(id);
 
         String result = transactionService.getKey(id);
@@ -219,13 +257,13 @@ public class TransactionController<LOGGER> {
         userRepository.save(user);
 
 
-        return result;
+        return ResponseEntity.ok(result);
     }
 
 
 
     @PostMapping(value = "/initTransaction/{id}")
-    public String initiateTransaction(@PathVariable("id") Long id, @RequestBody TransactionRequest transactionRequest) throws JsonProcessingException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+    public ResponseEntity<?> initiateTransaction(@PathVariable("id") Long id, @RequestBody TransactionRequest transactionRequest) throws JsonProcessingException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         ObjectMapper mapper = new ObjectMapper();
@@ -247,36 +285,72 @@ public class TransactionController<LOGGER> {
         String newTrans = objectMapper.writeValueAsString(transactionRequest);
         log.debug("TRANSACTIONREQUEST-----------------"+newTrans);
 
-        HttpEntity<TransactionRequest> entity1 = new HttpEntity<TransactionRequest>(transactionRequest, headers1);
-        //ResponseEntity<String> res = restTemplate.postForEntity(url, entity1, String.class);
-        String result = restTemplate.exchange(url, HttpMethod.POST, entity1, String.class).getBody();
-        log.debug("RESULT2------------------------------------"+result);
-        JsonNode node = mapper.readTree(result);
-        String description = node.path("description").asText();
-        String transactionId = node.path("transactionId").asText();
-        String requestId = node.path("requestId").asText();
-        String status = node.path("status").asText();
-        Transaction newTransaction = new Transaction();
-        newTransaction.setTransactionId(transactionId);
-        newTransaction.setMethode(transactionRequest.getMethod());
-        newTransaction.setRequestId(requestId);
-        newTransaction.setDescription(description);
-        newTransaction.setStatus(status);
-        newTransaction.setCustomerId(transactionRequest.getCustomer().getId());
-        newTransaction.setPartnerId(transactionRequest.getPartner().getId());
-        newTransaction.setAgent(user.getEmail());
-        newTransaction.setValue(transactionRequest.getAmount().getValue());
-        newTransaction.setReference(transactionRequest.getReference());
-        newTransaction.setEntite(userService.getUserByEmailAndMsisdn(user.getEmail(), transactionRequest.getPartner().getId()).getEntite());
-        newTransaction.setDate(new Date());
-        newTransaction.setDay(LocalDate.parse( new SimpleDateFormat("yyyy-MM-dd").format(newTransaction.getDate()) ).toString());
-        log.debug("Date"+newTransaction.getDate());
-        transactionRepository.save(newTransaction);
-        return result;
+        try {
+            HttpEntity<TransactionRequest> entity1 = new HttpEntity<TransactionRequest>(transactionRequest, headers1);
+            //ResponseEntity<String> res = restTemplate.postForEntity(url, entity1, String.class);
+            String result = restTemplate.exchange(url, HttpMethod.POST, entity1, String.class).getBody();
+            log.debug("RESULT2------------------------------------"+result);
+            JsonNode node = mapper.readTree(result);
+            String description = node.path("description").asText();
+            String transactionId = node.path("transactionId").asText();
+            String requestId = node.path("requestId").asText();
+            String status = node.path("status").asText();
+            Transaction newTransaction = new Transaction();
+            newTransaction.setTransactionId(transactionId);
+            newTransaction.setMethode(transactionRequest.getMethod());
+            newTransaction.setRequestId(requestId);
+            newTransaction.setDescription(description);
+            newTransaction.setStatus(status);
+            newTransaction.setCustomerId(transactionRequest.getCustomer().getId());
+            newTransaction.setPartnerId(transactionRequest.getPartner().getId());
+            newTransaction.setAgent(user.getEmail());
+            newTransaction.setValue(transactionRequest.getAmount().getValue());
+            newTransaction.setReference(transactionRequest.getReference());
+            newTransaction.setEntite(userService.getUserByEmailAndMsisdn(user.getEmail(), transactionRequest.getPartner().getId()).getEntite());
+            newTransaction.setDate(new Date());
+            newTransaction.setDay(LocalDate.parse( new SimpleDateFormat("yyyy-MM-dd").format(newTransaction.getDate()) ).toString());
+            log.debug("Date"+newTransaction.getDate());
+            transactionRepository.save(newTransaction);
+            return ResponseEntity.ok(result);
+        } catch (HttpClientErrorException e) {
+
+            String message = e.getMessage();
+            log.debug("messageee---------------"+message);
+
+            int startIndex = message.indexOf("{");
+            int endIndex = message.lastIndexOf("}") + 1;
+            String jsonString = message.substring(startIndex, endIndex);
+
+            log.debug("jsonstttrrrsr---------------"+jsonString);
+            String js = jsonString.replaceAll("<EOL>", "");
+            log.debug("jsfddddddddddddddddddddr---------------"+js);
+            JSONObject json = new JSONObject(js);
+            System.out.println("Type: " + json.getString("type"));
+            System.out.println("Title: " + json.getString("title"));
+
+            ErrorHttp errorHttp = new ErrorHttp();
+            errorHttp.setType(json.getString("type"));
+            errorHttp.setTitle(json.getString("title"));
+            errorHttp.setInstance(json.getString("instance"));
+            errorHttp.setStatus(json.getString("status"));
+            errorHttp.setCode(json.getString("code"));
+            errorHttp.setDetail(json.getString("detail"));
+            errorHttpRepository.save(errorHttp);
+            return ResponseEntity.ok(errorHttp.getDetail());
+
+        }catch (ResourceAccessException e) {
+
+            return ResponseEntity.ok("Ressource non accessible. Vérifiez votre connexion."); }
+        catch (NullPointerException e) {
+            return ResponseEntity.ok(e.getMessage());
+        }
+
+
+
     }
 
     @PostMapping("/confirmTransaction/{id}/{transactionId}")
-    public String confirmPayment(@PathVariable("id") Long id, @PathVariable("transactionId") String transactionId, @RequestBody Customer customer) throws JsonProcessingException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public ResponseEntity<?> confirmPayment(@PathVariable("id") Long id, @PathVariable("transactionId") String transactionId, @RequestBody Customer customer) throws JsonProcessingException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         log.debug("CUSTOMER---------------"+customer);
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
@@ -295,21 +369,81 @@ public class TransactionController<LOGGER> {
         customer.setEncryptedPinCode(encodedMessage);
         ObjectMapper objectMapper = new ObjectMapper();
         String newCustom = objectMapper.writeValueAsString(customer);
-        HttpEntity<Customer> entity1 = new HttpEntity<Customer>(customer, headers1);
-        //ResponseEntity<String> res = restTemplate.postForEntity(url, entity1, String.class);
-        String result = restTemplate.exchange(url, HttpMethod.POST, entity1, String.class).getBody();
-        JsonNode node = mapper.readTree(result);
-        String status = node.path("status").asText();
-        log.debug("Status------------------"+status);
-        Transaction transaction = transactionService.getTransactionByTransactionId(transactionId);
-        transaction.setStatus(status);
-        transactionRepository.save(transaction);
-        log.debug("newTrans---------------"+transaction);
-return result;
+        try {
+            HttpEntity<Customer> entity1 = new HttpEntity<Customer>(customer, headers1);
+            //ResponseEntity<String> res = restTemplate.postForEntity(url, entity1, String.class);
+            String result = restTemplate.exchange(url, HttpMethod.POST, entity1, String.class).getBody();
+            JsonNode node = mapper.readTree(result);
+            String status = node.path("status").asText();
+            log.debug("Status------------------"+status);
+            Transaction transaction = transactionService.getTransactionByTransactionId(transactionId);
+            transaction.setStatus(status);
+            transactionRepository.save(transaction);
+            log.debug("newTrans---------------"+transaction);
+
+            return ResponseEntity.ok(result);
+        } catch (HttpClientErrorException e) {
+
+            String message = e.getMessage();
+            log.debug("messageee---------------"+message);
+
+            int startIndex = message.indexOf("{");
+            int endIndex = message.lastIndexOf("}") + 1;
+            String jsonString = message.substring(startIndex, endIndex);
+
+            log.debug("jsonstttrrrsr---------------"+jsonString);
+            String js = jsonString.replaceAll("<EOL>", "");
+            log.debug("jsfddddddddddddddddddddr---------------"+js);
+            JSONObject json = new JSONObject(js);
+            System.out.println("Type: " + json.getString("type"));
+            System.out.println("Title: " + json.getString("title"));
+
+            ErrorHttp errorHttp = new ErrorHttp();
+            errorHttp.setType(json.getString("type"));
+            errorHttp.setTitle(json.getString("title"));
+            errorHttp.setInstance(json.getString("instance"));
+            errorHttp.setStatus(json.getString("status"));
+            errorHttp.setCode(json.getString("code"));
+            errorHttp.setDetail(json.getString("detail"));
+            errorHttpRepository.save(errorHttp);
+            Transaction transaction = transactionService.getTransactionByTransactionId(transactionId);
+            transaction.setStatus("ECHEC");
+            transactionRepository.save(transaction);
+            log.debug("newTrans---------------"+transaction);
+
+            return ResponseEntity.ok(errorHttp.getDetail());
+        }catch (ResourceAccessException e) {
+
+            return ResponseEntity.ok("Ressource non accessible. Vérifiez votre connexion.");
+
+        }
+
+
+
     }
 
-    @PostMapping(value = "/generateOTP/{id}")
-    public String initiateTransaction(@PathVariable("id") Long id, @RequestBody Customer customer) throws JsonProcessingException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+    @GetMapping("/isTransactionConfirm/{id}/{transactionId}")
+    public ResponseEntity<?> isconfirmPayment(@PathVariable("id") Long id, @PathVariable("transactionId") String transactionId, @RequestBody Customer customer) throws IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException, InterruptedException {
+        Transaction transaction = transactionRepository.findByTransactionId(transactionId);
+        int i = 0;
+        while (i< 100 ) {
+int t = +i;
+while (t < 100) {
+    if (confirmPayment(id, transactionId, customer).hasBody()) {
+        log.debug("hhhhhhhhhhhhhhhh" + confirmPayment(id, transactionId, customer).hasBody());
+        return ResponseEntity.ok("yes");
+    } else {
+        log.debug("hhhhhhhhhhhhhhhh" + confirmPayment(id, transactionId, customer).hasBody());
+        return ResponseEntity.ok("NON");
+    }
+}
+
+        }
+        return ResponseEntity.ok("FALSE");
+    }
+
+        @PostMapping(value = "/generateOTP/{id}")
+    public ResponseEntity<?> initiateTransaction(@PathVariable("id") Long id, @RequestBody Customer customer) throws JsonProcessingException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         ObjectMapper mapper = new ObjectMapper();
@@ -334,11 +468,11 @@ return result;
         PaymentActor paymentActor = paymentActorService.getByMsisdn(customer.getId());
         paymentActor.setOtp(otp);
         paymentActorRepository.save(paymentActor);
-        return result;
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping(value = "/oneStepPayment/{id}")
-    public String oneStepPayment(@PathVariable("id") Long id, @RequestBody OneStepRequest oneStepRequest) throws JsonProcessingException {
+    public ResponseEntity<?> oneStepPayment(@PathVariable("id") Long id, @RequestBody OneStepRequest oneStepRequest) throws JsonProcessingException {
         log.debug("Customer----------------"+oneStepRequest.getCustomer());
         log.debug("Partner---------------"+oneStepRequest.getPartner());
         User user = userService.getUserById(id);
@@ -369,11 +503,11 @@ return result;
         newTransaction.setCustomerId(oneStepRequest.getCustomer().getId());
         newTransaction.setPartnerId(oneStepRequest.getPartner().getId());
         transactionRepository.save(newTransaction);
-        return result;
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/getBalance/{id}")
-    public String getBalance(@PathVariable("id") Long id, @RequestBody Partner partner) throws JsonProcessingException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public ResponseEntity<?> getBalance(@PathVariable("id") Long id, @RequestBody Partner partner) throws JsonProcessingException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         ObjectMapper mapper = new ObjectMapper();
@@ -396,11 +530,11 @@ return result;
         HttpEntity<Partner> entity1 = new HttpEntity<Partner>(partner, headers1);
         String result = restTemplate.exchange(url, HttpMethod.POST, entity1, String.class).getBody();
 
-      return result;
+      return ResponseEntity.ok(result);
     }
 
     @GetMapping("/getProfile/{id}")
-    public String getProfile(@PathVariable("id") Long id, @Param("msisdn") String msisdn, @Param("type") String type) throws JsonProcessingException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public ResponseEntity<?> getProfile(@PathVariable("id") Long id, @Param("msisdn") String msisdn, @Param("type") String type) throws JsonProcessingException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         User user = userService.getUserById(id);
         String token = user.getTokenOM();
         ObjectMapper mapper = new ObjectMapper();
@@ -427,7 +561,7 @@ return result;
         user.setBalance(balance);
         userRepository.save(user);
         log.debug("user"+user);
-        return result;
+        return ResponseEntity.ok(result);
     }
 
 

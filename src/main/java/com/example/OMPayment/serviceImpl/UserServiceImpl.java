@@ -3,6 +3,7 @@ package com.example.OMPayment.serviceImpl;
 import com.example.OMPayment.dto.UserDTO;
 import com.example.OMPayment.model.User;
 import com.example.OMPayment.payload.request.SignupRequest;
+import com.example.OMPayment.repository.CashInActorRepository;
 import com.example.OMPayment.repository.PaymentActorRepository;
 import com.example.OMPayment.repository.ProfilRepository;
 import com.example.OMPayment.repository.UserRepository;
@@ -20,6 +21,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ProfilRepository profilRepository;
     private final PaymentActorRepository paymentActorRepository;
+    private final CashInActorRepository cashInActorRepository;
 
     @Override
     public List<User> getAllUsers() {
@@ -109,6 +111,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByEmailAndMsisdn(String email, String msisdn) {
         return userRepository.findByEmailAndMsisdn(email, msisdn);
+    }
+
+    @Override
+    public void blockUser(String email) {
+        User user = userRepository.findByEmail(email);
+        user.setStatus(false);
+        userRepository.save(user);
+
+    }
+
+    @Override
+    public void unblockUser(String email) {
+        User user = userRepository.findByEmail(email);
+        user.setStatus(true);
+        userRepository.save(user);
     }
 
 

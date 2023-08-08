@@ -9,6 +9,6 @@ import lombok.ToString;
 public class Money {
 
     private String unit;
-    private Float value;
+    private Long value;
 
 }

@@ -119,7 +119,7 @@ public class AuthController  {
             }
 
         }
-        return ResponseEntity.ok("yes");
+        return ResponseEntity.ok("Nom d'utilisateur ou mot de passe incorrect.");
 
     }
 

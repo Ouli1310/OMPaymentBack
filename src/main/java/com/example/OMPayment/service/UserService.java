@@ -22,7 +22,7 @@ public interface UserService {
     Long getUserPinCode(String msisdn);
     List<User> getUserByEntite(Long entite);
     User getUserByEmailAndMsisdn(String email, String msisdn);
-    void blockUser(String email);
-    void unblockUser(String email);
+    User blockOrUnblockUser(String email);
+   // void unblockUser(String email);
 
 }

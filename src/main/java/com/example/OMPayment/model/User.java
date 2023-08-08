@@ -41,6 +41,8 @@ public class User implements Serializable {
     private String password;
     @Column(name = "userTokenOM", columnDefinition = "TEXT")
     private String tokenOM;
+    @Column(name = "userQrcode", columnDefinition = "TEXT")
+    private String qrCode;
     @Column(name = "userResetPasswordToken", columnDefinition = "TEXT")
     private String requestPasswordToken;
     @Column(name = "userPublicKey")

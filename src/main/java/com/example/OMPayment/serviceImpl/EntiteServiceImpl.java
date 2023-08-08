@@ -27,4 +27,14 @@ public class EntiteServiceImpl implements EntiteService {
     public Entite getEntiteByName(String name) {
         return entiteRepository.findByName(name);
     }
+
+    @Override
+    public List<Entite> getEntiteByType(String type) {
+        return entiteRepository.findByType(type);
+    }
+
+    @Override
+    public Entite getEntiteByMsisdn(String msisdn) {
+        return entiteRepository.findByMsisdn(msisdn);
+    }
 }

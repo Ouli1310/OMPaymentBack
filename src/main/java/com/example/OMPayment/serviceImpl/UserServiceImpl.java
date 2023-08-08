@@ -1,16 +1,14 @@
 package com.example.OMPayment.serviceImpl;
 
-import com.example.OMPayment.dto.UserDTO;
 import com.example.OMPayment.model.User;
 import com.example.OMPayment.payload.request.SignupRequest;
-import com.example.OMPayment.repository.CashInActorRepository;
+import com.example.OMPayment.repository.CashInRepository;
 import com.example.OMPayment.repository.PaymentActorRepository;
 import com.example.OMPayment.repository.ProfilRepository;
 import com.example.OMPayment.repository.UserRepository;
 import com.example.OMPayment.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -21,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ProfilRepository profilRepository;
     private final PaymentActorRepository paymentActorRepository;
-    private final CashInActorRepository cashInActorRepository;
+    private final CashInRepository cashInActorRepository;
 
     @Override
     public List<User> getAllUsers() {
@@ -114,19 +112,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void blockUser(String email) {
+    public User blockOrUnblockUser(String email) {
         User user = userRepository.findByEmail(email);
-        user.setStatus(false);
+        if(user.getStatus() == true) {
+            user.setStatus(false);
+        }
+        else {
+            user.setStatus(true);
+        }
+
         userRepository.save(user);
+        return user;
 
     }
 
-    @Override
+ /**   @Override
     public void unblockUser(String email) {
         User user = userRepository.findByEmail(email);
         user.setStatus(true);
         userRepository.save(user);
     }
-
+*/
 
 }

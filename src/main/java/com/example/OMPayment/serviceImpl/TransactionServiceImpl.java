@@ -26,9 +26,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.example.OMPayment.encryption.RSAUtils.getPublicKey;
 import static java.util.Base64.getDecoder;
@@ -52,6 +57,37 @@ public class TransactionServiceImpl implements TransactionService {
     public List<Transaction> listTransactionParStatus(String status) {
         return transactionRepository.findByStatus(status);
     }
+
+    @Override
+    public List<Transaction> listTransactionParStatusAndDay(String status, String day) {
+        return transactionRepository.findByStatusAndDay(status, day);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParStatusAndAgenceDay(String status, Long entire, String day) {
+        return transactionRepository.findByStatusAndEntiteAndDay(status, entire, day);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParStatusAndAgentAndDay(String status, String email, String day) {
+        return transactionRepository.findByStatusAndAgentAndDay(status, email, day);
+    }
+
+    @Override
+    public List<Transaction> transactionsByStatusAndBetweenDates(String status, String date1, String date2) {
+        return transactionRepository.findByStatusAndDayGreaterThanEqualAndDayLessThanEqual(status, date1, date2);
+    }
+
+    @Override
+    public List<Transaction> transactionsByStatusAndEntiteAndBetweenDates(String status, Long entite, String date1, String date2) {
+        return transactionRepository.findByStatusAndEntiteAndDayGreaterThanEqualAndDayLessThanEqual(status, entite, date1, date2);
+    }
+
+    @Override
+    public List<Transaction> transactionsByStatusAndAgentAndBetweenDates(String status, String email, String date1, String date2) {
+        return transactionRepository.findByStatusAndAgentAndDayGreaterThanEqualAndDayLessThanEqual(status, email, date1, date2);
+    }
+
 
     @Override
     public String encryptedCode(Long id, String pinCode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, JsonProcessingException {
@@ -108,6 +144,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public Transaction getTransactionByMethodeAndTransactionId(String methode, String id) {
+        return transactionRepository.findByMethodeAndTransactionId(methode, id);
+    }
+
+    @Override
     public List<Transaction> listTransactionsByPartnerId(String partnerId) {
         return transactionRepository.findByPartnerId(partnerId);
     }
@@ -119,12 +160,17 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> listTransactionsParAgence(Long entite) {
-        return transactionRepository.findByEntite(entite);
+        return transactionRepository.findByEntiteOrderByDateDesc(entite);
     }
 
     @Override
     public List<Transaction> listTransactionsParMethode(String methode) {
-        return transactionRepository.findByMethodeNot(methode);
+        return transactionRepository.findByMethode(methode);
+    }
+
+    @Override
+    public List<Transaction> listTransactionByMethodeAndStatus(String methode, String status) {
+        return transactionRepository.findByMethodeAndStatus(methode, status);
     }
 
     @Override
@@ -135,7 +181,22 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<Transaction> listTransactionsParAgent(String emailAgent) {
 
-       return transactionRepository.findByAgent(emailAgent);
+        return transactionRepository.findByAgentOrderByDateDesc(emailAgent);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParPNR(String pnr) {
+        return transactionRepository.findByReference(pnr);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParPNRAndStatus(String pnr, String status) {
+        return transactionRepository.findByReferenceAndStatus(pnr, status);
+    }
+
+    @Override
+    public List<Transaction> listTransactionParMethodeAndPNRAndStatus(String methode, String pnr, String status) {
+        return transactionRepository.findByMethodeAndReferenceAndStatus(methode, pnr, status);
     }
 
     @Override
@@ -160,12 +221,91 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public List<Transaction> transactionByMethodeAndDay(String methode, String day) {
+        return transactionRepository.findByMethodeAndDay(methode, day);
+    }
+
+    @Override
+    public List<Transaction> transactinByEntiteAndDay(Long entite, String day) {
+        return transactionRepository.findByEntiteAndDay(entite, day);
+    }
+
+    @Override
+    public List<Transaction> transactinByMethodeAndEntiteAndDay(String methode, Long entite, String day) {
+        return transactionRepository.findByMethodeAndEntiteAndDay(methode, entite,day);
+    }
+
+    @Override
     public List<Transaction> transactionBetweenDate1AnDate2(String date1, String date2) {
         return transactionRepository.findByDayGreaterThanEqualAndDayLessThanEqual(date1, date2);
     }
 
     @Override
+    public List<Transaction> transactionByMethodeAndBetweenDate1AnDate2(String methode, String date1, String date2) {
+        return transactionRepository.findByMethodeAndDayGreaterThanEqualAndDayLessThanEqual(methode, date1, date2);
+    }
+
+    @Override
     public List<Transaction> transactionsByEntiteAndBetweenDates(Long entite, String date1, String date2) {
         return transactionRepository.findByEntiteAndDayGreaterThanEqualAndDayLessThanEqual(entite, date1, date2);
+    }
+
+    @Override
+    public List<Transaction> transactionsByMethodeAndEntiteAndBetweenDates(String methode, Long entite, String date1, String date2) {
+        return transactionRepository.findByMethodeAndEntiteAndDayGreaterThanEqualAndDayLessThanEqual(methode, entite, date1, date2);
+    }
+
+    @Override
+    public Transaction getTransactionById(Long id) {
+        return transactionRepository.findById(id).get();
+    }
+
+    @Override
+    public Transaction changeStatus(Long id) {
+        Transaction transaction = getTransactionById(id);
+
+        String dateTimeStr = transaction.getDate().toString();
+        System.out.println(dateTimeStr);
+        /**  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+         Date dat = format.parse(transaction.getDate().toString());
+         System.out.println("datttttt"+dat);
+         System.out.println(dat.getSeconds());
+         Date currentTime = new Date();
+         System.out.println("currentTime"+currentTime);*/
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+        System.out.println(formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+        System.out.println("datetime"+dateTime);
+        LocalDateTime newDateTime = dateTime.plusSeconds(15);
+        System.out.println(newDateTime);
+
+        //On instancie la date présente, puis on la formatte
+
+        Date currentTime = new Date();
+        System.out.println("currentTime"+currentTime);
+        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+
+        LocalDateTime date = LocalDateTime.parse(currentTime.toString(), formatter1);
+        System.out.println("dateeeee"+date.toString());
+
+        /** DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+         LocalDateTime formattedCurrentTime = LocalDateTime.parse(date.toString(), outputFormatter);
+         System.out.println(formattedCurrentTime);*/
+
+
+        if((newDateTime.plusSeconds(15).compareTo(date)<0) && transaction.getStatus().equalsIgnoreCase("INITIATED")) {
+            transaction.setDescription("Cette transaction a dépassé le délai de confirmation.");
+            transaction.setStatus("ECHEC");
+            transactionRepository.save(transaction);
+            return transaction;
+        }
+
+        return transaction;
+    }
+
+    @Override
+    public List<Transaction> transactionsByAgentAndDay(String email, String day) {
+        return transactionRepository.findByAgentAndDay(email, day);
     }
 }

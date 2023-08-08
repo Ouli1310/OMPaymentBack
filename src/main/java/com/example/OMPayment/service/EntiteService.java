@@ -10,4 +10,7 @@ public interface EntiteService {
     List<Entite> getAllEntite();
     Entite getEntiteById(Long id);
     Entite getEntiteByName(String name);
+    List<Entite> getEntiteByType(String type);
+
+    Entite getEntiteByMsisdn(String msisdn);
 }

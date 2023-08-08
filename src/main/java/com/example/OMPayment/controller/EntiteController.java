@@ -31,4 +31,14 @@ public class EntiteController {
         return ResponseEntity.ok(entiteService.getEntiteByName(name));
     }
 
+    @GetMapping("/type/{type}")
+    public ResponseEntity<?> getEntiteByType(@PathVariable("type") String type) {
+        return ResponseEntity.ok(entiteService.getEntiteByType(type));
+    }
+
+    @GetMapping("/telephone/{msisdn}")
+    public ResponseEntity<?> getEntiteByTel(@PathVariable("msisdn") String msisdn) {
+        return ResponseEntity.ok(entiteService.getEntiteByMsisdn(msisdn));
+    }
+
 }

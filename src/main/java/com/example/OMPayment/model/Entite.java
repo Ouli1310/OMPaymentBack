@@ -27,5 +27,7 @@ public class Entite implements Serializable {
     private String msisdn;
     @Column(name = "entiteCodeMarchand")
     private String codeMarchand;
+    @Column(name = "entiteType")
+    private String type;
 
 }

@@ -70,15 +70,16 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, signupRequest));
     }
 
-    @PostMapping("blockUser/{email}")
-    public void blockUser(@PathVariable("email") String email) {
-         userService.blockUser(email);
+    @PutMapping("blockOrUnblockUser/{email}")
+    public ResponseEntity<?> blockUser(@PathVariable("email") String email) {
+        return ResponseEntity.ok(userService.blockOrUnblockUser(email));
+
     }
 
-    @PostMapping("unblockUser/{email}")
+ /**   @PostMapping("unblockUser/{email}")
     public void unblockUser(@PathVariable("email") String email) {
         userService.unblockUser(email);
-    }
+    } */
 
     @DeleteMapping("deleteUser/{id}")
     public void deleteUser(@PathVariable("id") Long id) {
